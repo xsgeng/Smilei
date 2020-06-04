@@ -835,10 +835,10 @@ public:
         std::vector<PyObject *> prof;
         if( this_species->momentum_initialization_array_ == NULL ) {
             // Mean velocity
-            if( PyTools::extract_1or3Profiles( "mean_velocity", "Species", ispec, prof ) ) {
-                this_species->velocity_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "mean_velocity[0] ", species_name ), true );
-                this_species->velocity_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "mean_velocity[1] ", species_name ), true );
-                this_species->velocity_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "mean_velocity[2] ", species_name ), true );
+            if( PyTools::extract_1or3Profiles( "momentum_profile", "Species", ispec, prof ) ) {
+                this_species->velocity_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "momentum_profile[0] ", species_name ), true );
+                this_species->velocity_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "momentum_profile[1] ", species_name ), true );
+                this_species->velocity_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "momentum_profile[2] ", species_name ), true );
             }
             // Temperature
             if( PyTools::extract_1or3Profiles( "temperature", "Species", ispec, prof ) ) {
@@ -847,10 +847,10 @@ public:
                 this_species->temperature_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "temperature[2] ", species_name ), true );
             }
         } else {
-            ok1 = PyTools::extract_1or3Profiles( "mean_velocity", "Species", ispec, prof ) ;
+            ok1 = PyTools::extract_1or3Profiles( "momentum_profile", "Species", ispec, prof ) ;
             ok2 = PyTools::extract_1or3Profiles( "temperature", "Species", ispec, prof ) ;
             if( ok1 ) {
-                ERROR( "For species '" << species_name << "', cannot define both `mean_velocity` and `momentum_initialization` array." );
+                ERROR( "For species '" << species_name << "', cannot define both `momentum_profile` and `momentum_initialization` array." );
             }
             if( ok2 ) {
                 ERROR( "For species '" << species_name << "', cannot define both `temperature` and `momentum_initialization` array." );

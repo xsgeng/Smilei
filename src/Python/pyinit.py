@@ -330,7 +330,7 @@ class Species(SmileiComponent):
     charge = None
     charge_density = None
     number_density = None
-    mean_velocity = []  # Default value is     0, set in ParticleCreator function in species.cpp
+    momentum_profile = []  # Default value is     0, set in ParticleCreator function in species.cpp
     temperature = []    # Default value is 1e-10, set in ParticleCreator function in species.cpp
     thermal_boundary_temperature = []
     thermal_boundary_velocity = [0.,0.,0.]
@@ -379,7 +379,7 @@ class ParticleInjector(SmileiComponent):
     box_side = "xmin"
     position_initialization = "species"
     momentum_initialization = "species"
-    mean_velocity = []  # Default value is     0, set in ParticleCreator function
+    momentum_profile = []  # Default value is     0, set in ParticleCreator function
     temperature = []    # Default value is 1e-10, set in ParticleCreator function
     charge_density = None
     number_density = None

@@ -147,10 +147,10 @@ public:
         // Mean velocity
         // std::vector<double> mean_velocity_input;
         std::vector<PyObject *> prof;
-        if( PyTools::extract_1or3Profiles( "mean_velocity", "ParticleInjector" , injector_index, prof ) ) {
-            this_particle_injector->velocity_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "mean_velocity[0] ", this_particle_injector->name_ ), true );
-            this_particle_injector->velocity_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "mean_velocity[1] ", this_particle_injector->name_ ), true );
-            this_particle_injector->velocity_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "mean_velocity[2] ", this_particle_injector->name_ ), true );
+        if( PyTools::extract_1or3Profiles( "momentum_profile", "ParticleInjector" , injector_index, prof ) ) {
+            this_particle_injector->velocity_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "momentum_profile[0] ", this_particle_injector->name_ ), true );
+            this_particle_injector->velocity_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "momentum_profile[1] ", this_particle_injector->name_ ), true );
+            this_particle_injector->velocity_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "momentum_profile[2] ", this_particle_injector->name_ ), true );
             MESSAGE( 2, "> Mean velocity redefined: " << this_particle_injector->velocity_profile_[0]->getInfo());
             // string message =  "> Mean velocity: ";
             // for (unsigned int i = 0 ; i < mean_velocity_input.size()-1 ; i++) {

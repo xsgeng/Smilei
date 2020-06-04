@@ -89,7 +89,7 @@ def _smilei_check():
         s.charge_density  = toSpaceProfile(s.charge_density)
         s.particles_per_cell = toSpaceProfile(s.particles_per_cell)
         s.charge          = toSpaceProfile(s.charge)
-        s.mean_velocity   = [ toSpaceProfile(p) for p in s.mean_velocity ]
+        s.momentum_profile   = [ toSpaceProfile(p) for p in s.momentum_profile ]
         s.temperature     = [ toSpaceProfile(p) for p in s.temperature   ]
     for e in ExternalField:
         e.profile         = toSpaceProfile(e.profile)
@@ -108,7 +108,7 @@ def _smilei_check():
         s.charge_density = toSpaceProfile(s.charge_density)
         s.time_envelope  = toTimeProfile(s.time_envelope)
         s.particles_per_cell = toSpaceProfile(s.particles_per_cell )
-        s.mean_velocity   = [ toSpaceProfile(p) for p in s.mean_velocity ]
+        s.momentum_profile   = [ toSpaceProfile(p) for p in s.momentum_profile ]
         s.temperature     = [ toSpaceProfile(p) for p in s.temperature   ]
 # this function will be called after initialising the simulation, just before entering the time loop
 # if it returns false, the code will call a Py_Finalize();
@@ -127,7 +127,7 @@ def _keep_python_running():
     profiles += [ant.time_profile for ant in Antenna]
     if len(MovingWindow)>0 or len(LoadBalancing)>0:
         for s in Species:
-            profiles += [s.number_density, s.charge_density, s.particles_per_cell, s.charge] + s.mean_velocity + s.temperature
+            profiles += [s.number_density, s.charge_density, s.particles_per_cell, s.charge] + s.momentum_profile + s.temperature
     if len(MovingWindow)>0:
         for e in ExternalField:
             profiles += [e.profile]
@@ -137,7 +137,7 @@ def _keep_python_running():
     for e in PrescribedField:
         profiles += [e.profile]
     for s in ParticleInjector:
-        profiles += [s.time_envelope, s.number_density, s.charge_density, s.particles_per_cell] + s.mean_velocity + s.temperature
+        profiles += [s.time_envelope, s.number_density, s.charge_density, s.particles_per_cell] + s.momentum_profile + s.temperature
     for prof in profiles:
         if callable(prof) and not hasattr(prof,"profileName"):
             return True
