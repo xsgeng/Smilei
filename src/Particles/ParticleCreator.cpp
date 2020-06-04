@@ -166,16 +166,16 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
     // field containing the temperature distribution along all 3 momentum coordinates (always 3d * 3)
     Field3D temperature[3];
     // field containing the temperature distribution along all 3 momentum coordinates (always 3d * 3)
-    Field3D velocity[3];
+    Field3D momentum_profile[3];
     
     if( species_->momentum_initialization_array_ != NULL ) {
         for( unsigned int idim = 0; idim < 3; idim++ ) {
             momentum[idim] = &( species_->momentum_initialization_array_[idim*species_->n_numpy_particles_] );
         }
     } else {
-        //Initialize velocity and temperature profiles
+        //Initialize momentum_profile and temperature profiles
         for( i=0; i<3; i++ ) {
-            velocity[i].allocateDims( n_space_to_create_generalized );
+            momentum_profile[i].allocateDims( n_space_to_create_generalized );
             temperature[i].allocateDims( n_space_to_create_generalized );
         }
         // Evaluate profiles
@@ -187,9 +187,9 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
             }
 
             if( velocity_profile_[m] ) {
-                velocity_profile_[m]   ->valuesAt( xyz, velocity   [m] );
+                velocity_profile_[m]   ->valuesAt( xyz, momentum_profile   [m] );
             } else {
-                velocity[m].put_to( 0.0 ); //default value
+                momentum_profile[m].put_to( 0.0 ); //default value
             }
         }
     } // end if momentum_initialization_array_
@@ -305,8 +305,7 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
     unsigned int iPart=n_existing_particles;
     double *indexes=new double[species_->nDim_particle];
     double *temp=new double[3];
-    double *vel=new double[3];
-    
+    double *mom=new double[3];
     if( species_->position_initialization_array_ == NULL ) {
         for( i=0; i<n_space_to_create_generalized[0]; i++ ) {
             if(( !n_existing_particles )&&( i%species_->clrw == 0 )&&( initialized_in_species_ )) {
@@ -316,10 +315,9 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
                 for( k=0; k<n_space_to_create_generalized[2]; k++ ) {
                     // initialize particles in meshes where the density is non-zero
                     if( density( i, j, k )>0 ) {
-
-                        vel[0]  = velocity[0]( i, j, k );
-                        vel[1]  = velocity[1]( i, j, k );
-                        vel[2]  = velocity[2]( i, j, k );
+                        mom[0]  = momentum_profile[0]( i, j, k );
+                        mom[2]  = momentum_profile[1]( i, j, k );
+                        mom[1]  = momentum_profile[2]( i, j, k );
                         temp[0] = temperature[0]( i, j, k );
                         temp[1] = temperature[1]( i, j, k );
                         temp[2] = temperature[2]( i, j, k );
@@ -349,7 +347,7 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
                         if( !position_initialization_on_species_ ) {
                             ParticleCreator::createPosition( position_initialization_, particles_, species_, nPart, iPart, indexes, params );
                         }
-                        ParticleCreator::createMomentum( momentum_initialization_, particles_, species_,  nPart, iPart, temp, vel );
+                        ParticleCreator::createMomentum( momentum_initialization_, particles_, species_,  nPart, iPart, temp, mom );
                         
                         ParticleCreator::createWeight( position_initialization_, particles_, nPart, iPart, density( i, j, k ), params );
 
@@ -462,13 +460,13 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
                                                - species_->min_loc_vec[1] )/species_->cell_length[1] );
             }
             if( !species_->momentum_initialization_array_ ) {
-                vel [0] = velocity   [0]( int_ijk[0], int_ijk[1], int_ijk[2] );
-                vel [1] = velocity   [1]( int_ijk[0], int_ijk[1], int_ijk[2] );
-                vel [2] = velocity   [2]( int_ijk[0], int_ijk[1], int_ijk[2] );
+                mom [0] = momentum_profile[0]( int_ijk[0], int_ijk[1], int_ijk[2] );
+                mom [1] = momentum_profile[1]( int_ijk[0], int_ijk[1], int_ijk[2] );
+                mom [2] = momentum_profile[2]( int_ijk[0], int_ijk[1], int_ijk[2] );
                 temp[0] = temperature[0]( int_ijk[0], int_ijk[1], int_ijk[2] );
                 temp[1] = temperature[1]( int_ijk[0], int_ijk[1], int_ijk[2] );
                 temp[2] = temperature[2]( int_ijk[0], int_ijk[1], int_ijk[2] );
-                ParticleCreator::createMomentum( momentum_initialization_, particles_, species_, 1, ip, temp, vel );
+                ParticleCreator::createMomentum( momentum_initialization_, particles_, species_, 1, ip, temp, mom );
             } else {
                 for( unsigned int idim=0; idim < 3; idim++ ) {
                     particles_->momentum( idim, ip ) = momentum[idim][ippy]/species_->mass_ ;
@@ -488,7 +486,7 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
 
     delete [] indexes;
     delete [] temp;
-    delete [] vel;
+    delete [] mom;
     
     if( particles_->tracked ) {
         particles_->resetIds();
@@ -643,7 +641,7 @@ void ParticleCreator::createMomentum( std::string momentum_initialization,
                                     unsigned int nPart,
                                     unsigned int iPart,
                                     double * temp,
-                                    double * vel )
+                                    double * mom )
 {
     // -------------------------------------------------------------------------
     // Particles
@@ -696,83 +694,13 @@ void ParticleCreator::createMomentum( std::string momentum_initialization,
             }
         }
 
-        // Adding the mean velocity (using relativistic composition)
-        // Also relies on the method proposed in Zenitani, Phys. Plasmas 22, 042116 (2015)
-        // to ensure the correct properties of a boosted distribution function
-        // -------------------------------------------------------------------------------
-        double vx, vy, vz, v2, g, gm1, Lxx, Lyy, Lzz, Lxy, Lxz, Lyz, px, py, pz;
-        double gamma, inverse_gamma;
-        // mean-velocity
-        vx  = -vel[0];
-        vy  = -vel[1];
-        vz  = -vel[2];
-        v2  = vx*vx + vy*vy + vz*vz;
-        if( v2>0. ) {
-            
-            if( v2>=1. ) {
-                ERROR("The mean velocity should not be higher than the speed of light");
-            }
-            
-            g   = 1.0/sqrt( 1.0-v2 );
-            gm1 = g - 1.0;
+        // assigning momentum shift
+        for( unsigned int p=iPart; p<iPart+nPart; p++ ) {
+            particles->momentum( 0, p ) += mom[0];
+            particles->momentum( 1, p ) += mom[1];
+            particles->momentum( 2, p ) += mom[2];
+        }
 
-            // compute the different component of the Matrix block of the Lorentz transformation
-            Lxx = 1.0 + gm1 * vx*vx/v2;
-            Lyy = 1.0 + gm1 * vy*vy/v2;
-            Lzz = 1.0 + gm1 * vz*vz/v2;
-            Lxy = gm1 * vx*vy/v2;
-            Lxz = gm1 * vx*vz/v2;
-            Lyz = gm1 * vy*vz/v2;
-
-            // Volume transformation method (here is the correction by Zenitani)
-            double Volume_Acc;
-            double CheckVelocity;
-
-            // Lorentz transformation of the momentum
-            for( unsigned int p=iPart; p<iPart+nPart; p++ ) {
-                gamma = sqrt( 1.0 + particles->momentum( 0, p )*particles->momentum( 0, p )
-                           + particles->momentum( 1, p )*particles->momentum( 1, p )
-                           + particles->momentum( 2, p )*particles->momentum( 2, p ) );
-                inverse_gamma = 1./gamma;
-
-                CheckVelocity = ( vx*particles->momentum( 0, p )
-                              + vy*particles->momentum( 1, p )
-                              + vz*particles->momentum( 2, p ) ) * inverse_gamma;
-                Volume_Acc = Rand::uniform();
-                if( CheckVelocity > Volume_Acc ) {
-
-                    double Phi, Theta, vfl, vflx, vfly, vflz, vpx, vpy, vpz ;
-                    Phi = atan2( sqrt( vx*vx +vy*vy ), vz );
-                    Theta = atan2( vy, vx );
-
-                    vpx = particles->momentum( 0, p )*inverse_gamma ;
-                    vpy = particles->momentum( 1, p )*inverse_gamma ;
-                    vpz = particles->momentum( 2, p )*inverse_gamma ;
-                    vfl = vpx*cos( Theta )*sin( Phi ) +vpy*sin( Theta )*sin( Phi ) + vpz*cos( Phi ) ;
-                    vflx = vfl*cos( Theta )*sin( Phi ) ;
-                    vfly = vfl*sin( Theta )*sin( Phi ) ;
-                    vflz = vfl*cos( Phi ) ;
-                    vpx -= 2.*vflx ;
-                    vpy -= 2.*vfly ;
-                    vpz -= 2.*vflz ;
-                    inverse_gamma = sqrt( 1.0 - vpx*vpx - vpy*vpy - vpz*vpz );
-                    gamma = 1./inverse_gamma;
-                    particles->momentum( 0, p ) = vpx*gamma ;
-                    particles->momentum( 1, p ) = vpy*gamma ;
-                    particles->momentum( 2, p ) = vpz*gamma ;
-
-                }//here ends the corrections by Zenitani
-
-                px = -gamma*g*vx + Lxx * particles->momentum( 0, p ) + Lxy * particles->momentum( 1, p ) + Lxz * particles->momentum( 2, p );
-                py = -gamma*g*vy + Lxy * particles->momentum( 0, p ) + Lyy * particles->momentum( 1, p ) + Lyz * particles->momentum( 2, p );
-                pz = -gamma*g*vz + Lxz * particles->momentum( 0, p ) + Lyz * particles->momentum( 1, p ) + Lzz * particles->momentum( 2, p );
-
-                particles->momentum( 0, p ) = px;
-                particles->momentum( 1, p ) = py;
-                particles->momentum( 2, p ) = pz;
-            }
-
-        }//ENDif vel != 0
 
     }
     // -------------------------------------------------------------------------
@@ -784,9 +712,9 @@ void ParticleCreator::createMomentum( std::string momentum_initialization,
 
             //double gamma =sqrt(vel[0]*vel[0] + vel[1]*vel[1] + vel[2]*vel[2]);
             for( unsigned int p=iPart; p<iPart+nPart; p++ ) {
-                particles->momentum( 0, p ) = vel[0];
-                particles->momentum( 1, p ) = vel[1];
-                particles->momentum( 2, p ) = vel[2];
+                particles->momentum( 0, p ) = mom[0];
+                particles->momentum( 1, p ) = mom[1];
+                particles->momentum( 2, p ) = mom[2];
             }
 
             // Rectangular distribution
