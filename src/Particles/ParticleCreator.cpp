@@ -24,8 +24,8 @@ ParticleCreator::ParticleCreator()
 //! Destructor for ParticleCreator
 // ---------------------------------------------------------------------------------------------------------------------
 ParticleCreator::~ParticleCreator() {
-    // for( unsigned int i=0; i<velocity_profile_.size(); i++ ) {
-    //     delete velocity_profile_[i];
+    // for( unsigned int i=0; i<momentum_profile_.size(); i++ ) {
+    //     delete momentum_profile_[i];
     // }
     // for( unsigned int i=0; i<temperature_profile_.size(); i++ ) {
     //     delete temperature_profile_[i];
@@ -62,9 +62,9 @@ void ParticleCreator::associate( ParticleInjector * particle_injector, Particles
     position_initialization_ = particle_injector->position_initialization_;
     position_initialization_on_species_ = particle_injector->position_initialization_on_injector_;
     momentum_initialization_ = particle_injector->momentum_initialization_;
-    velocity_profile_.resize(particle_injector->velocity_profile_.size());
-    for (unsigned int i = 0 ; i < velocity_profile_.size() ; i++) {
-        velocity_profile_[i] = particle_injector->velocity_profile_[i];
+    momentum_profile_.resize(particle_injector->momentum_profile_.size());
+    for (unsigned int i = 0 ; i < momentum_profile_.size() ; i++) {
+        momentum_profile_[i] = particle_injector->momentum_profile_[i];
     }
     temperature_profile_.resize(particle_injector->temperature_profile_.size());
     for (unsigned int i = 0 ; i < temperature_profile_.size() ; i++) {
@@ -90,9 +90,9 @@ void ParticleCreator::associate( Species * species)
     position_initialization_on_species_ = species->position_initialization_on_species_;
     position_initialization_on_species_type_ = species->position_initialization_on_species_type_;
     momentum_initialization_ = species->momentum_initialization_;
-    velocity_profile_.resize(species->velocity_profile_.size());
-    for (unsigned int i = 0 ; i < velocity_profile_.size() ; i++) {
-        velocity_profile_[i] = species->velocity_profile_[i];
+    momentum_profile_.resize(species->momentum_profile_.size());
+    for (unsigned int i = 0 ; i < momentum_profile_.size() ; i++) {
+        momentum_profile_[i] = species->momentum_profile_[i];
     }
     temperature_profile_.resize(species->temperature_profile_.size());
     for (unsigned int i = 0 ; i < temperature_profile_.size() ; i++) {
@@ -186,8 +186,8 @@ int ParticleCreator::create( std::vector<unsigned int> n_space_to_create,
                 temperature[m].put_to( 0.0000000001 ); // default value
             }
 
-            if( velocity_profile_[m] ) {
-                velocity_profile_[m]   ->valuesAt( xyz, momentum_profile   [m] );
+            if( momentum_profile_[m] ) {
+                momentum_profile_[m]   ->valuesAt( xyz, momentum_profile   [m] );
             } else {
                 momentum_profile[m].put_to( 0.0 ); //default value
             }

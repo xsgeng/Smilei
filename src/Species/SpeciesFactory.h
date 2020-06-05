@@ -834,11 +834,11 @@ public:
         
         std::vector<PyObject *> prof;
         if( this_species->momentum_initialization_array_ == NULL ) {
-            // Mean velocity
+            // Momentum profile
             if( PyTools::extract_1or3Profiles( "momentum_profile", "Species", ispec, prof ) ) {
-                this_species->velocity_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "momentum_profile[0] ", species_name ), true );
-                this_species->velocity_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "momentum_profile[1] ", species_name ), true );
-                this_species->velocity_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "momentum_profile[2] ", species_name ), true );
+                this_species->momentum_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "momentum_profile[0] ", species_name ), true );
+                this_species->momentum_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "momentum_profile[1] ", species_name ), true );
+                this_species->momentum_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "momentum_profile[2] ", species_name ), true );
             }
             // Temperature
             if( PyTools::extract_1or3Profiles( "temperature", "Species", ispec, prof ) ) {
@@ -984,13 +984,13 @@ public:
             new_species->density_profile_                     = new Profile( species->density_profile_ );
             new_species->particles_per_cell_profile_          = new Profile( species->particles_per_cell_profile_ );
         }
-        new_species->velocity_profile_.resize( 3 );
+        new_species->momentum_profile_.resize( 3 );
         new_species->temperature_profile_.resize( 3 );
 
-        if( species->velocity_profile_[0] ) {
-            new_species->velocity_profile_[0]                 = new Profile( species->velocity_profile_[0] );
-            new_species->velocity_profile_[1]                 = new Profile( species->velocity_profile_[1] );
-            new_species->velocity_profile_[2]                 = new Profile( species->velocity_profile_[2] );
+        if( species->momentum_profile_[0] ) {
+            new_species->momentum_profile_[0]                 = new Profile( species->momentum_profile_[0] );
+            new_species->momentum_profile_[1]                 = new Profile( species->momentum_profile_[1] );
+            new_species->momentum_profile_[2]                 = new Profile( species->momentum_profile_[2] );
         }
         if( species->temperature_profile_[0] ) {
             new_species->temperature_profile_[0]              = new Profile( species->temperature_profile_[0] );

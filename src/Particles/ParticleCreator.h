@@ -95,8 +95,8 @@ public:
     // Momentum initialization type
     std::string momentum_initialization_;
     
-    //! vector of velocity profiles (vx, vy, vz)
-    std::vector<Profile *> velocity_profile_;
+    //! vector of momentum profiles (px, py, pz)
+    std::vector<Profile *> momentum_profile_;
     
     //! vector of temperature profiles (Tx, Ty, Tz)
     std::vector<Profile *> temperature_profile_;

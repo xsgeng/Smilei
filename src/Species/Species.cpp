@@ -63,7 +63,7 @@ Species::Species( Params &params, Patch *patch ) :
     density_profile_type_( "none" ),
     charge_profile_( NULL ),
     density_profile_( NULL ),
-    velocity_profile_( 3, NULL ),
+    momentum_profile_( 3, NULL ),
     temperature_profile_( 3, NULL ),
     particles_per_cell_profile_( NULL ),
     max_charge_( 0. ),
@@ -272,8 +272,8 @@ Species::~Species()
     if( density_profile_ ) {
         delete density_profile_;
     }
-    for( unsigned int i=0; i<velocity_profile_.size(); i++ ) {
-        delete velocity_profile_[i];
+    for( unsigned int i=0; i<momentum_profile_.size(); i++ ) {
+        delete momentum_profile_[i];
     }
     for( unsigned int i=0; i<temperature_profile_.size(); i++ ) {
         delete temperature_profile_[i];

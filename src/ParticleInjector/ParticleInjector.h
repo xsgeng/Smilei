@@ -60,8 +60,8 @@ public:
     //! Index of the species where position initialization is made
     int position_initialization_on_injector_index_;
 
-    //! vector of velocity profiles (vx, vy, vz)
-    std::vector<Profile *> velocity_profile_;
+    //! vector of momentum profiles (px, py, pz)
+    std::vector<Profile *> momentum_profile_;
     
     //! vector of temperature profiles (Tx, Ty, Tz)
     std::vector<Profile *> temperature_profile_;

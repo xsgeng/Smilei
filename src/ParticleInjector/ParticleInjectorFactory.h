@@ -144,14 +144,14 @@ public:
             MESSAGE( 2, "> Momentum initialization: " << this_particle_injector->momentum_initialization_);
         }
         
-        // Mean velocity
+        // Momentum profile
         // std::vector<double> mean_velocity_input;
         std::vector<PyObject *> prof;
         if( PyTools::extract_1or3Profiles( "momentum_profile", "ParticleInjector" , injector_index, prof ) ) {
-            this_particle_injector->velocity_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "momentum_profile[0] ", this_particle_injector->name_ ), true );
-            this_particle_injector->velocity_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "momentum_profile[1] ", this_particle_injector->name_ ), true );
-            this_particle_injector->velocity_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "momentum_profile[2] ", this_particle_injector->name_ ), true );
-            MESSAGE( 2, "> Mean velocity redefined: " << this_particle_injector->velocity_profile_[0]->getInfo());
+            this_particle_injector->momentum_profile_[0] = new Profile( prof[0], params.nDim_field, Tools::merge( "momentum_profile[0] ", this_particle_injector->name_ ), true );
+            this_particle_injector->momentum_profile_[1] = new Profile( prof[1], params.nDim_field, Tools::merge( "momentum_profile[1] ", this_particle_injector->name_ ), true );
+            this_particle_injector->momentum_profile_[2] = new Profile( prof[2], params.nDim_field, Tools::merge( "momentum_profile[2] ", this_particle_injector->name_ ), true );
+            MESSAGE( 2, "> Momentum profile redefined: " << this_particle_injector->momentum_profile_[0]->getInfo());
             // string message =  "> Mean velocity: ";
             // for (unsigned int i = 0 ; i < mean_velocity_input.size()-1 ; i++) {
             //     message += to_string(mean_velocity_input[i]) + ", ";
@@ -159,10 +159,10 @@ public:
             // message += to_string(mean_velocity_input[mean_velocity_input.size()-1]);
             // MESSAGE(2, message);
         } else {
-            MESSAGE( 2, "> Mean velocity defined as the species.");
-            this_particle_injector->velocity_profile_[0] = new Profile(species->velocity_profile_[0]);
-            this_particle_injector->velocity_profile_[1] = new Profile(species->velocity_profile_[1]);
-            this_particle_injector->velocity_profile_[2] = new Profile(species->velocity_profile_[2]);
+            MESSAGE( 2, "> Momentum profile defined as the species.");
+            this_particle_injector->momentum_profile_[0] = new Profile(species->momentum_profile_[0]);
+            this_particle_injector->momentum_profile_[1] = new Profile(species->momentum_profile_[1]);
+            this_particle_injector->momentum_profile_[2] = new Profile(species->momentum_profile_[2]);
         }
         
         // Temperature
@@ -318,12 +318,12 @@ public:
         new_particle_injector->position_initialization_on_injector_       = particle_injector->position_initialization_on_injector_;
         new_particle_injector->position_initialization_on_injector_index_ = particle_injector->position_initialization_on_injector_index_;
         
-        new_particle_injector->velocity_profile_.resize( 3 );
+        new_particle_injector->momentum_profile_.resize( 3 );
 
-        if( particle_injector->velocity_profile_[0] ) {
-            new_particle_injector->velocity_profile_[0]                   = new Profile( particle_injector->velocity_profile_[0] );
-            new_particle_injector->velocity_profile_[1]                   = new Profile( particle_injector->velocity_profile_[1] );
-            new_particle_injector->velocity_profile_[2]                   = new Profile( particle_injector->velocity_profile_[2] );
+        if( particle_injector->momentum_profile_[0] ) {
+            new_particle_injector->momentum_profile_[0]                   = new Profile( particle_injector->momentum_profile_[0] );
+            new_particle_injector->momentum_profile_[1]                   = new Profile( particle_injector->momentum_profile_[1] );
+            new_particle_injector->momentum_profile_[2]                   = new Profile( particle_injector->momentum_profile_[2] );
         }
         
         new_particle_injector->temperature_profile_.resize( 3 );
